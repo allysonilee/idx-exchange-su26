@@ -45,3 +45,18 @@ sold_rows_after_filter = len(sold_df)
 print("Sold after Residential filter: ", sold_rows_after_filter)
 
 sold_df.to_csv("ConcatenatedCRMLSSold.csv")
+
+
+# January 2024 to April 2026 row counts
+###
+# CRMLSListing: 
+# Before concatenation: 893594
+# After concatenation: 893594
+# Before Residential filter: 893594
+# After Residential filter: 567549
+###
+# CRMLSSold: 
+# Before concatenation: 615725
+# After concaqtenation: 615725
+# Before Residential filter: 615725
+# After Residential filter: 414063

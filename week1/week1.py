@@ -46,17 +46,16 @@ print("Sold after Residential filter: ", sold_rows_after_filter)
 
 sold_df.to_csv("ConcatenatedCRMLSSold.csv")
 
-
-# January 2024 to April 2026 row counts
+# January 2024 to May 2026 row counts
 ###
-# CRMLSListing: 
-# Before concatenation: 893594
-# After concatenation: 893594
-# Before Residential filter: 893594
-# After Residential filter: 567549
+# CRMLSListing:
+# Before concatenation: 929805
+# After concatenation: 929805
+# Before Residential filter: 929805
+# After Residential filter: 591627
 ###
-# CRMLSSold: 
-# Before concatenation: 615725
-# After concaqtenation: 615725
-# Before Residential filter: 615725
-# After Residential filter: 414063
+# CRMLSSold:
+# Before concatenation: 639916
+# After concaqtenation: 639916
+# Before Residential filter: 639916
+# After Residential filter: 430445

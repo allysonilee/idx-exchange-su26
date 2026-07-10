@@ -7,9 +7,9 @@ mortgage.columns = ['date', 'rate_30yr_fixed']
 mortgage['year_month'] = mortgage['date'].dt.to_period('M')
 mortgage_monthly = (mortgage.groupby('year_month')['rate_30yr_fixed'].mean().reset_index())
 
-sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2/CRMLSSoldAll.csv", )
+sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldAll.csv", low_memory = False)
 
-listings = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2/CRMLSListingAll.csv")
+listings = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSListingAll.csv", low_memory = False)
 
 # Sold dataset — key off CloseDate
 sold['year_month'] = pd.to_datetime(sold['CloseDate'], format = 'mixed').dt.to_period('M')

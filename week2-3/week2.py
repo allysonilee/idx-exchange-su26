@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2/CRMLSSoldAll.csv")
+sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldAll.csv")
 
 # Identify numbers of rows and columns
 sold_rows = len(sold)

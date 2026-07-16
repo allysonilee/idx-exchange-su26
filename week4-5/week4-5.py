@@ -16,20 +16,25 @@ for field in date_fields:
     listings[field] = pd.to_datetime(listings[field], format = 'mixed')
     sold[field] = pd.to_datetime(sold[field], format = 'mixed')
 
+# Data Consistency Check: 
 # Validate the logical order of date fields: ListingContractDate should precede PurchaseContractDate, which should precede CloseDate. Create boolean flag columns to mark records that violate these rules:
+print("Listings: ")
 listings['listing_after_close_flag'] = listings['CloseDate'] < listings['ListingContractDate']
 print(f"Flagged listing after close: {sum(listings['listing_after_close_flag'])}")
 listings['purchase_after_close_flag'] = listings['CloseDate'] < listings['PurchaseContractDate']
 print(f"Flagged purchase after close: {sum(listings['purchase_after_close_flag'])}")
 listings['negative_timeline_flag'] = (listings['listing_after_close_flag'] | listings['purchase_after_close_flag'])
 print(f"Flagged negative timeline: {sum(listings['negative_timeline_flag'])}")
+listings = listings[~(listings['listing_after_close_flag']) & ~(listings['purchase_after_close_flag'])]
 
+print("Sold: ")
 sold['listing_after_close_flag'] = sold['CloseDate'] < sold['ListingContractDate']
 print(f"Flagged listing after close: {sum(sold['listing_after_close_flag'])}")
 sold['purchase_after_close_flag'] = sold['CloseDate'] < sold['PurchaseContractDate']
 print(f"Flagged purchase after close: {sum(sold['purchase_after_close_flag'])}")
 sold['negative_timeline_flag'] = (sold['listing_after_close_flag'] | sold['purchase_after_close_flag'])
 print(f"Flagged negative timeline: {sum(sold['negative_timeline_flag'])}")
+sold = sold[~(sold['listing_after_close_flag']) & ~(sold['purchase_after_close_flag'])]
 
 # Remove or flag invalid numeric values: ClosePrice <= 0, LivingArea <= 0, DaysOnMarket < 0, negative Bedrooms or Bathrooms
 print("Listings: ")
@@ -66,6 +71,7 @@ print("Sold: ")
 for field in num_fields:
     print(f"{field}: {sold[field].dtype}")
 
+### Geographic Data Check: 
 # Flag records with missing coordinates (Latitude or Longitude is null)
 listings['missing_coords'] = listings['Latitude'].isna() | listings['Longitude'].isna()
 print(f"Listings missing coordinates: {sum(listings['missing_coords'])}")
@@ -87,6 +93,22 @@ print(f"Listings out of bound coordinates: {sum(listings['oob_coords'])}")
 sold['oob_coords'] = (sold['Longitude'] > 0)
 print(f"Sold out of bound coordinates: {sum(sold['oob_coords'])}")
 
+### Week 5
+# Flag out-of-state or implausible coordinates
+# listings['oos_coords'] =
+# listings['imp_coords'] = 
+
+# Remove flagged rows: 
+# listings = listings[~(listings['missing_coords']) & ~(listings['null_coords']) & ~(listings['oob_coords']) & ~(listings['oos_coords']) & ~(listings['imp_coords'])]
+# sold = sold[~(sold['missing_coords']) & ~(sold['null_coords']) & ~(sold['oob_coords']) & ~(sold['oos_coords']) & ~(sold['imp_coords'])]
+
+# After row counts: 
+# print(f"Listings rows after cleaning: {len(listings)}")
+# print(f"Sold rows after cleaning: {len(sold)}")
+
+###
+# January 2024 to June 2026 Data Cleaning Summary
+###
 # Listings rows before cleaning: 967260
 # Sold rows before cleaning: 665439
 #----------------------------------------------#

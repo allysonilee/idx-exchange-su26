@@ -1,10 +1,9 @@
 import pandas as pd
+import geopandas as gpd
 
+# Import CRMLSListings and CRMLSSold CSVs
 listings = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSListingwRates.csv", low_memory = False)
 sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldwRates.csv", low_memory = False)
-
-# From Week 2:
-# Flagged Missing Columns: ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict']
 
 # Before row count: 
 print(f"Listings rows before cleaning: {len(listings)}")
@@ -61,6 +60,9 @@ print(f"Flagged Negative Rooms: {sum(sold['neg_rooms_flag'])}")
 # Handle missing values appropriately
 ### Week 5
 
+# From Week 2:
+# Flagged Missing Columns: ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict']
+
 # Ensure numeric fields are properly typed
 num_fields = ['AssociationFee', 'BathroomsTotalInteger', 'BedroomsTotal', 'ClosePrice', 'DaysOnMarket', 'GarageSpaces', 'Latitude', 'ListingKeyNumeric', 'ListPrice', 'LivingArea', 'Longitude', 'LotSizeAcres', 'LotSizeArea', 'LotSizeSquareFeet', 'MainLevelBedrooms', 'OriginalListPrice', 'ParkingTotal', 'Stories', 'StreetNumberNumeric', 'YearBuilt'] # excludes flagged missing columns
 print("Listings: ")
@@ -105,6 +107,32 @@ print(f"Sold out of bound coordinates: {sum(sold['oob_coords'])}")
 # After row counts: 
 # print(f"Listings rows after cleaning: {len(listings)}")
 # print(f"Sold rows after cleaning: {len(sold)}")
+
+# # Add school district mapping
+# # Read California school district boundary GeoJSON
+# districts_gdf = gpd.read_file("C:/Users/izlal/IDXExchange_SU26/week4-5/DistrictAreas2526_-284845464123469011.geojson")
+
+# # Filter the school district dataset to only include DistrictType == "Unified"
+# districts_gdf = districts_gdf[districts_gdf["DistrictType"] == "Unified"]
+# districts_gdf.head()
+
+# districts_gdf = districts_gdf.to_crs(crs = "EPSG:4326")
+
+# # Convert each property’s Latitude and Longitude into a geographic point
+# listings_gdf = gpd.GeoDataFrame(listings, geometry = gpd.points_from_xy(listings["Longitude"], listings["Latitude"]), crs="EPSG:4326")
+# sold_gdf = gpd.GeoDataFrame(sold, geometry = gpd.points_from_xy(sold["Longitude"], sold["Latitude"]), crs="EPSG:4326")
+
+# # Perform a spatial join (gpd.sjoin) to determine which Unified School District polygon contains each property
+# listings_joined = gpd.sjoin(listings_gdf, districts_gdf, how = "left", predicate = "within")
+# sold_joined = gpd.sjoin(sold_gdf, districts_gdf, how = "left", predicate = "within")
+
+# # Add the resulting DistrictName as a new column in your dataset
+# listings_df = pd.DataFrame(listings_joined)
+# sold_df = pd.DataFrame(sold_joined)
+
+# # Save the enriched dataset
+# listings_df.to_csv("CRMLSListingswDistrict.csv")
+# sold_df.to_csv("CRMLSSoldwDistrict.csv")
 
 ###
 # January 2024 to June 2026 Data Cleaning Summary

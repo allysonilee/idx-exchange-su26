@@ -22,12 +22,10 @@ for field in date_fields:
 listings['listing_after_close_flag'] = listings['CloseDate'] < listings['ListingContractDate']
 listings['purchase_after_close_flag'] = listings['CloseDate'] < listings['PurchaseContractDate']
 listings['negative_timeline_flag'] = (listings['listing_after_close_flag'] | listings['purchase_after_close_flag'])
-listings = listings[~(listings['listing_after_close_flag']) & ~(listings['purchase_after_close_flag'])]
 
 sold['listing_after_close_flag'] = sold['CloseDate'] < sold['ListingContractDate']
 sold['purchase_after_close_flag'] = sold['CloseDate'] < sold['PurchaseContractDate']
 sold['negative_timeline_flag'] = (sold['listing_after_close_flag'] | sold['purchase_after_close_flag'])
-sold = sold[~(sold['listing_after_close_flag']) & ~(sold['purchase_after_close_flag'])]
 
 print("Listings: ")
 print(f"Flagged listing after close: {sum(listings['listing_after_close_flag'])}")
@@ -38,6 +36,10 @@ print("Sold: ")
 print(f"Flagged listing after close: {sum(sold['listing_after_close_flag'])}")
 print(f"Flagged purchase after close: {sum(sold['purchase_after_close_flag'])}")
 print(f"Flagged negative timeline: {sum(sold['negative_timeline_flag'])}")
+
+# Remove flagged illogical date rows
+listings = listings[~(listings['listing_after_close_flag']) & ~(listings['purchase_after_close_flag'])]
+sold = sold[~(sold['listing_after_close_flag']) & ~(sold['purchase_after_close_flag'])]
 
 # Remove or flag invalid numeric values: ClosePrice <= 0, LivingArea <= 0, DaysOnMarket < 0, negative Bedrooms or Bathrooms
 listings['closeprice_flag'] = (listings['ClosePrice'] <= 0)
@@ -59,7 +61,7 @@ print(f"Flagged Negative Rooms: {sum(listings['neg_rooms_flag'])}")
 print("Sold: ")
 print(f"Flagged Close Price: {sum(sold['closeprice_flag'])}")
 print(f"Flagged Living Area: {sum(sold['livingarea_flag'])}")
-print(f"Flagged Days on Market: {sum(listings['daysonmarket_flag'])}")
+print(f"Flagged Days on Market: {sum(sold['daysonmarket_flag'])}")
 print(f"Flagged Negative Rooms: {sum(sold['neg_rooms_flag'])}")
 
 # Remove unnecessary or redundant columns
@@ -79,17 +81,6 @@ for field in num_fields:
 print("Sold: ")
 for field in num_fields:
     print(f"{field}: {sold[field].dtype}")
-
-# Handle missing values appropriately
-num_listings = listings.select_dtypes(include=['number']).columns
-listings[num_listings] = listings[num_listings].fillna(listings[num_listings].median())
-obj_listings = listings.select_dtypes(include=['object']).columns
-listings[obj_listings] = listings[obj_listings].fillna("Missing")
-
-num_sold = sold.select_dtypes(include=['number']).columns
-sold[num_sold] = sold[num_sold].fillna(sold[num_sold].median())
-obj_sold = sold.select_dtypes(include=['object']).columns
-sold[obj_sold] = sold[obj_sold].fillna("Missing")
 
 ### Geographic Data Check: 
 # Flag records with missing coordinates (Latitude or Longitude is null)
@@ -129,7 +120,18 @@ print(f"Implausible Coordinates: {sum(sold['imp_coords'])}")
 listings = listings[~(listings['missing_coords']) & ~(listings['null_coords']) & ~(listings['oob_coords']) & ~(listings['oos_coords']) & ~(listings['imp_coords'])]
 sold = sold[~(sold['missing_coords']) & ~(sold['null_coords']) & ~(sold['oob_coords']) & ~(sold['oos_coords']) & ~(sold['imp_coords'])]
 
-# Add school district mapping
+# Handle missing values appropriately
+num_listings = listings.select_dtypes(include=['number']).columns
+listings[num_listings] = listings[num_listings].fillna(listings[num_listings].median())
+obj_listings = listings.select_dtypes(include=['str']).columns
+listings[obj_listings] = listings[obj_listings].fillna("Missing")
+
+num_sold = sold.select_dtypes(include=['number']).columns
+sold[num_sold] = sold[num_sold].fillna(sold[num_sold].median())
+obj_sold = sold.select_dtypes(include=['str']).columns
+sold[obj_sold] = sold[obj_sold].fillna("Missing")
+
+### Add school district mapping
 # Read California school district boundary GeoJSON
 districts_gdf = gpd.read_file("C:/Users/izlal/IDXExchange_SU26/week4-5/DistrictAreas2526_-284845464123469011.geojson")
 
@@ -139,6 +141,10 @@ districts_gdf.head()
 
 districts_gdf = districts_gdf.to_crs(crs = "EPSG:4326")
 
+# Remove original CSV index columns to prevent index duplication
+listings = listings.loc[:, ~listings.columns.str.contains('^Unnamed')]
+sold = sold.loc[:, ~sold.columns.str.contains('^Unnamed')]
+
 # Convert each property’s Latitude and Longitude into a geographic point
 listings_gdf = gpd.GeoDataFrame(listings, geometry = gpd.points_from_xy(listings["Longitude"], listings["Latitude"]), crs="EPSG:4326")
 sold_gdf = gpd.GeoDataFrame(sold, geometry = gpd.points_from_xy(sold["Longitude"], sold["Latitude"]), crs="EPSG:4326")
@@ -146,6 +152,10 @@ sold_gdf = gpd.GeoDataFrame(sold, geometry = gpd.points_from_xy(sold["Longitude"
 # Perform a spatial join (gpd.sjoin) to determine which Unified School District polygon contains each property
 listings_joined = gpd.sjoin(listings_gdf, districts_gdf, how = "left", predicate = "within")
 sold_joined = gpd.sjoin(sold_gdf, districts_gdf, how = "left", predicate = "within")
+
+# Drop gpd.sjoin index column
+listings_joined = listings_joined.drop(columns=["index_right"], errors="ignore")
+sold_joined = sold_joined.drop(columns=["index_right"], errors="ignore")
 
 # Add the resulting DistrictName as a new column in your dataset
 listings_df = pd.DataFrame(listings_joined)
@@ -190,7 +200,7 @@ sold_df.to_csv("CRMLSSoldwDistrict.csv")
 # Sold: 
 # Flagged Close Price: 38
 # Flagged Living Area: 538
-# Flagged Days on Market: 37
+# Flagged Days on Market: 64
 # Flagged Negative Rooms: 0
 #----------------------------------------------#
 ### Validate numeric dtypes: 
@@ -240,20 +250,20 @@ sold_df.to_csv("CRMLSSoldwDistrict.csv")
 #----------------------------------------------#
 ### Geographic Data Check: 
 # Listings: 
-# Missing Coordinates: 0
+# Missing Coordinates: 113438
 # Flagged Null Coordinates: 112
 # Out-of-bound Coordinates: 174
 # Out-of-state Coordinates: 642
 # Implausible Coordinates: 10
 ##
 # Sold: 
-# Missing Coordinates: 0
+# Missing Coordinates: 19698
 # Flagged Null Coordinates: 57
 # Out-of-bound Coordinates: 66
 # Out-of-state Coordinates: 215
 # Implausible Coordinates: 4
 #----------------------------------------------#
-# Listings rows after cleaning: 966121
-# Listings columns after cleaning: 139
-# Sold rows after cleaning: 664743
-# Sold columns after cleaning: 135
+# Listings rows after cleaning: 852686
+# Listings columns after cleaning: 136
+# Sold rows after cleaning: 645045
+# Sold columns after cleaning: 132

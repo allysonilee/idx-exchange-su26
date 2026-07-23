@@ -5,9 +5,11 @@ import geopandas as gpd
 listings = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSListingwRates.csv", low_memory = False)
 sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldwRates.csv", low_memory = False)
 
-# Before row count: 
+# Before row & col counts: 
 print(f"Listings rows before cleaning: {len(listings)}")
+print(f"Listings columns before cleaning: {len(listings.columns)}")
 print(f"Sold rows before cleaning: {len(sold)}")
+print(f"Sold columns before cleaning: {len(sold.columns)}")
 
 # Convert date fields to datetime format (CloseDate, PurchaseContractDate, ListingContractDate, ContractStatusChangeDate)
 date_fields = ['CloseDate', 'PurchaseContractDate', 'ListingContractDate', 'ContractStatusChangeDate']
@@ -17,51 +19,56 @@ for field in date_fields:
 
 # Data Consistency Check: 
 # Validate the logical order of date fields: ListingContractDate should precede PurchaseContractDate, which should precede CloseDate. Create boolean flag columns to mark records that violate these rules:
-print("Listings: ")
 listings['listing_after_close_flag'] = listings['CloseDate'] < listings['ListingContractDate']
-print(f"Flagged listing after close: {sum(listings['listing_after_close_flag'])}")
 listings['purchase_after_close_flag'] = listings['CloseDate'] < listings['PurchaseContractDate']
-print(f"Flagged purchase after close: {sum(listings['purchase_after_close_flag'])}")
 listings['negative_timeline_flag'] = (listings['listing_after_close_flag'] | listings['purchase_after_close_flag'])
-print(f"Flagged negative timeline: {sum(listings['negative_timeline_flag'])}")
 listings = listings[~(listings['listing_after_close_flag']) & ~(listings['purchase_after_close_flag'])]
 
-print("Sold: ")
 sold['listing_after_close_flag'] = sold['CloseDate'] < sold['ListingContractDate']
-print(f"Flagged listing after close: {sum(sold['listing_after_close_flag'])}")
 sold['purchase_after_close_flag'] = sold['CloseDate'] < sold['PurchaseContractDate']
-print(f"Flagged purchase after close: {sum(sold['purchase_after_close_flag'])}")
 sold['negative_timeline_flag'] = (sold['listing_after_close_flag'] | sold['purchase_after_close_flag'])
-print(f"Flagged negative timeline: {sum(sold['negative_timeline_flag'])}")
 sold = sold[~(sold['listing_after_close_flag']) & ~(sold['purchase_after_close_flag'])]
 
-# Remove or flag invalid numeric values: ClosePrice <= 0, LivingArea <= 0, DaysOnMarket < 0, negative Bedrooms or Bathrooms
 print("Listings: ")
+print(f"Flagged listing after close: {sum(listings['listing_after_close_flag'])}")
+print(f"Flagged purchase after close: {sum(listings['purchase_after_close_flag'])}")
+print(f"Flagged negative timeline: {sum(listings['negative_timeline_flag'])}")
+
+print("Sold: ")
+print(f"Flagged listing after close: {sum(sold['listing_after_close_flag'])}")
+print(f"Flagged purchase after close: {sum(sold['purchase_after_close_flag'])}")
+print(f"Flagged negative timeline: {sum(sold['negative_timeline_flag'])}")
+
+# Remove or flag invalid numeric values: ClosePrice <= 0, LivingArea <= 0, DaysOnMarket < 0, negative Bedrooms or Bathrooms
 listings['closeprice_flag'] = (listings['ClosePrice'] <= 0)
-print(f"Flagged Close Price: {sum(listings['closeprice_flag'])}")
 listings['livingarea_flag'] = (listings['LivingArea'] <= 0)
-print(f"Flagged Living Area: {sum(listings['livingarea_flag'])}")
 listings['daysonmarket_flag'] = (listings['DaysOnMarket'] < 0)
-print(f"Flagged Days on Market: {sum(listings['daysonmarket_flag'])}")
 listings['neg_rooms_flag'] = (listings['BathroomsTotalInteger'] < 0) | (listings['BedroomsTotal'] < 0)
+
+sold['closeprice_flag'] = (sold['ClosePrice'] <= 0)
+sold['livingarea_flag'] = (sold['LivingArea'] <= 0)
+sold['daysonmarket_flag'] = (sold['DaysOnMarket'] < 0)
+sold['neg_rooms_flag'] = (sold['BathroomsTotalInteger'] < 0) | (sold['BedroomsTotal'] < 0)
+
+print("Listings: ")
+print(f"Flagged Close Price: {sum(listings['closeprice_flag'])}")
+print(f"Flagged Living Area: {sum(listings['livingarea_flag'])}")
+print(f"Flagged Days on Market: {sum(listings['daysonmarket_flag'])}")
 print(f"Flagged Negative Rooms: {sum(listings['neg_rooms_flag'])}")
 
 print("Sold: ")
-sold['closeprice_flag'] = (sold['ClosePrice'] <= 0)
 print(f"Flagged Close Price: {sum(sold['closeprice_flag'])}")
-sold['livingarea_flag'] = (sold['LivingArea'] <= 0)
 print(f"Flagged Living Area: {sum(sold['livingarea_flag'])}")
-sold['daysonmarket_flag'] = (sold['DaysOnMarket'] < 0)
 print(f"Flagged Days on Market: {sum(listings['daysonmarket_flag'])}")
-sold['neg_rooms_flag'] = (sold['BathroomsTotalInteger'] < 0) | (sold['BedroomsTotal'] < 0)
 print(f"Flagged Negative Rooms: {sum(sold['neg_rooms_flag'])}")
 
 # Remove unnecessary or redundant columns
-# Handle missing values appropriately
-### Week 5
+# Flagged Missing Columns (Observed in Week 2): ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict']
+listings = listings.drop(columns = ['FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict'])
+listings = listings.loc[:, ~listings.columns.duplicated()]
 
-# From Week 2:
-# Flagged Missing Columns: ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict']
+sold = sold.drop(columns = ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict'])
+sold = sold.loc[:, ~sold.columns.duplicated()]
 
 # Ensure numeric fields are properly typed
 num_fields = ['AssociationFee', 'BathroomsTotalInteger', 'BedroomsTotal', 'ClosePrice', 'DaysOnMarket', 'GarageSpaces', 'Latitude', 'ListingKeyNumeric', 'ListPrice', 'LivingArea', 'Longitude', 'LotSizeAcres', 'LotSizeArea', 'LotSizeSquareFeet', 'MainLevelBedrooms', 'OriginalListPrice', 'ParkingTotal', 'Stories', 'StreetNumberNumeric', 'YearBuilt'] # excludes flagged missing columns
@@ -73,77 +80,102 @@ print("Sold: ")
 for field in num_fields:
     print(f"{field}: {sold[field].dtype}")
 
+# Handle missing values appropriately
+num_listings = listings.select_dtypes(include=['number']).columns
+listings[num_listings] = listings[num_listings].fillna(listings[num_listings].median())
+obj_listings = listings.select_dtypes(include=['object']).columns
+listings[obj_listings] = listings[obj_listings].fillna("Missing")
+
+num_sold = sold.select_dtypes(include=['number']).columns
+sold[num_sold] = sold[num_sold].fillna(sold[num_sold].median())
+obj_sold = sold.select_dtypes(include=['object']).columns
+sold[obj_sold] = sold[obj_sold].fillna("Missing")
+
 ### Geographic Data Check: 
 # Flag records with missing coordinates (Latitude or Longitude is null)
 listings['missing_coords'] = listings['Latitude'].isna() | listings['Longitude'].isna()
-print(f"Listings missing coordinates: {sum(listings['missing_coords'])}")
-
 sold['missing_coords'] = sold['Latitude'].isna() | sold['Longitude'].isna()
-print(f"Sold missing coordinates: {sum(sold['missing_coords'])}")
 
 # Flag Latitude = 0 or Longitude = 0 (sentinel null values)
 listings['null_coords'] = (listings['Latitude'] == 0) | (listings['Longitude'] == 0)
-print(f"Listings flagged null coordinates: {sum(listings['null_coords'])}")
-
 sold['null_coords'] = (sold['Latitude'] == 0) | (sold['Longitude'] == 0)
-print(f"Sold flagged null coordinates: {sum(sold['null_coords'])}")
 
 # Flag Longitude > 0 errors (California coordinates should be negative)
 listings['oob_coords'] = (listings['Longitude'] > 0)
-print(f"Listings out of bound coordinates: {sum(listings['oob_coords'])}")
-
 sold['oob_coords'] = (sold['Longitude'] > 0)
-print(f"Sold out of bound coordinates: {sum(sold['oob_coords'])}")
 
-### Week 5
 # Flag out-of-state or implausible coordinates
-# listings['oos_coords'] =
-# listings['imp_coords'] = 
+listings['oos_coords'] = (listings['Latitude'] < 32.5) | (listings['Latitude'] > 42) | (listings['Longitude'] > -114.13) | (listings['Longitude'] < -124.48)
+listings['imp_coords'] = (listings['Latitude'] < -90) | (listings['Latitude'] > 90) | (listings['Longitude'] > 180) | (listings['Longitude'] < -180)
+
+sold['oos_coords'] = (sold['Latitude'] < 32.5) | (sold['Latitude'] > 42) | (sold['Longitude'] > -114.13) | (sold['Longitude'] < -124.48)
+sold['imp_coords'] = (sold['Latitude'] < -90) | (sold['Latitude'] > 90) | (sold['Longitude'] > 180) | (sold['Longitude'] < -180)
+
+print("Listings: ")
+print(f"Missing Coordinates: {sum(listings['missing_coords'])}")
+print(f"Flagged Null Coordinates: {sum(listings['null_coords'])}")
+print(f"Out-of-bound Coordinates: {sum(listings['oob_coords'])}")
+print(f"Out-of-state Coordinates: {sum(listings['oos_coords'])}")
+print(f"Implausible Coordinates: {sum(listings['imp_coords'])}")
+
+print("Sold: ")
+print(f"Missing Coordinates: {sum(sold['missing_coords'])}")
+print(f"Flagged Null Coordinates: {sum(sold['null_coords'])}")
+print(f"Out-of-bound Coordinates: {sum(sold['oob_coords'])}")
+print(f"Out-of-state Coordinates: {sum(sold['oos_coords'])}")
+print(f"Implausible Coordinates: {sum(sold['imp_coords'])}")
 
 # Remove flagged rows: 
-# listings = listings[~(listings['missing_coords']) & ~(listings['null_coords']) & ~(listings['oob_coords']) & ~(listings['oos_coords']) & ~(listings['imp_coords'])]
-# sold = sold[~(sold['missing_coords']) & ~(sold['null_coords']) & ~(sold['oob_coords']) & ~(sold['oos_coords']) & ~(sold['imp_coords'])]
+listings = listings[~(listings['missing_coords']) & ~(listings['null_coords']) & ~(listings['oob_coords']) & ~(listings['oos_coords']) & ~(listings['imp_coords'])]
+sold = sold[~(sold['missing_coords']) & ~(sold['null_coords']) & ~(sold['oob_coords']) & ~(sold['oos_coords']) & ~(sold['imp_coords'])]
 
-# After row counts: 
-# print(f"Listings rows after cleaning: {len(listings)}")
-# print(f"Sold rows after cleaning: {len(sold)}")
+# Add school district mapping
+# Read California school district boundary GeoJSON
+districts_gdf = gpd.read_file("C:/Users/izlal/IDXExchange_SU26/week4-5/DistrictAreas2526_-284845464123469011.geojson")
 
-# # Add school district mapping
-# # Read California school district boundary GeoJSON
-# districts_gdf = gpd.read_file("C:/Users/izlal/IDXExchange_SU26/week4-5/DistrictAreas2526_-284845464123469011.geojson")
+# Filter the school district dataset to only include DistrictType == "Unified"
+districts_gdf = districts_gdf[districts_gdf["DistrictType"] == "Unified"]
+districts_gdf.head()
 
-# # Filter the school district dataset to only include DistrictType == "Unified"
-# districts_gdf = districts_gdf[districts_gdf["DistrictType"] == "Unified"]
-# districts_gdf.head()
+districts_gdf = districts_gdf.to_crs(crs = "EPSG:4326")
 
-# districts_gdf = districts_gdf.to_crs(crs = "EPSG:4326")
+# Convert each property’s Latitude and Longitude into a geographic point
+listings_gdf = gpd.GeoDataFrame(listings, geometry = gpd.points_from_xy(listings["Longitude"], listings["Latitude"]), crs="EPSG:4326")
+sold_gdf = gpd.GeoDataFrame(sold, geometry = gpd.points_from_xy(sold["Longitude"], sold["Latitude"]), crs="EPSG:4326")
 
-# # Convert each property’s Latitude and Longitude into a geographic point
-# listings_gdf = gpd.GeoDataFrame(listings, geometry = gpd.points_from_xy(listings["Longitude"], listings["Latitude"]), crs="EPSG:4326")
-# sold_gdf = gpd.GeoDataFrame(sold, geometry = gpd.points_from_xy(sold["Longitude"], sold["Latitude"]), crs="EPSG:4326")
+# Perform a spatial join (gpd.sjoin) to determine which Unified School District polygon contains each property
+listings_joined = gpd.sjoin(listings_gdf, districts_gdf, how = "left", predicate = "within")
+sold_joined = gpd.sjoin(sold_gdf, districts_gdf, how = "left", predicate = "within")
 
-# # Perform a spatial join (gpd.sjoin) to determine which Unified School District polygon contains each property
-# listings_joined = gpd.sjoin(listings_gdf, districts_gdf, how = "left", predicate = "within")
-# sold_joined = gpd.sjoin(sold_gdf, districts_gdf, how = "left", predicate = "within")
+# Add the resulting DistrictName as a new column in your dataset
+listings_df = pd.DataFrame(listings_joined)
+sold_df = pd.DataFrame(sold_joined)
 
-# # Add the resulting DistrictName as a new column in your dataset
-# listings_df = pd.DataFrame(listings_joined)
-# sold_df = pd.DataFrame(sold_joined)
+# After row & col counts: 
+print(f"Listings rows after cleaning: {len(listings_df)}")
+print(f"Listings columns after cleaning: {len(listings_df.columns)}")
+print(f"Sold rows after cleaning: {len(sold_df)}")
+print(f"Sold columns after cleaning: {len(sold_df.columns)}")
 
-# # Save the enriched dataset
-# listings_df.to_csv("CRMLSListingswDistrict.csv")
-# sold_df.to_csv("CRMLSSoldwDistrict.csv")
+# Save the enriched dataset
+listings_df.to_csv("CRMLSListingswDistrict.csv")
+sold_df.to_csv("CRMLSSoldwDistrict.csv")
 
-###
+#----------------------------------------------#
 # January 2024 to June 2026 Data Cleaning Summary
-###
+#----------------------------------------------#
 # Listings rows before cleaning: 967260
+# Listings columns before cleaning: 88
 # Sold rows before cleaning: 665439
+# Sold columns before cleaning: 86
 #----------------------------------------------#
 ### Illogical date field order: 
+# Listings: 
 # Flagged listing after close: 152
 # Flagged purchase after close: 357
 # Flagged negative timeline: 497
+##
+# Sold: 
 # Flagged listing after close: 119
 # Flagged purchase after close: 368
 # Flagged negative timeline: 481
@@ -162,7 +194,7 @@ print(f"Sold out of bound coordinates: {sum(sold['oob_coords'])}")
 # Flagged Negative Rooms: 0
 #----------------------------------------------#
 ### Validate numeric dtypes: 
-# Listings: 
+# Listings:
 # AssociationFee: float64
 # BathroomsTotalInteger: float64
 # BedroomsTotal: float64
@@ -207,9 +239,21 @@ print(f"Sold out of bound coordinates: {sum(sold['oob_coords'])}")
 # YearBuilt: float64
 #----------------------------------------------#
 ### Geographic Data Check: 
-# Listings missing coordinates: 113601
-# Sold missing coordinates: 19789
-# Listings flagged null coordinates: 112
-# Sold flagged null coordinates: 57
-# Listings out of bound coordinates: 174
-# Sold out of bound coordinates: 66
+# Listings: 
+# Missing Coordinates: 0
+# Flagged Null Coordinates: 112
+# Out-of-bound Coordinates: 174
+# Out-of-state Coordinates: 642
+# Implausible Coordinates: 10
+##
+# Sold: 
+# Missing Coordinates: 0
+# Flagged Null Coordinates: 57
+# Out-of-bound Coordinates: 66
+# Out-of-state Coordinates: 215
+# Implausible Coordinates: 4
+#----------------------------------------------#
+# Listings rows after cleaning: 966121
+# Listings columns after cleaning: 139
+# Sold rows after cleaning: 664743
+# Sold columns after cleaning: 135

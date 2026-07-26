@@ -7,9 +7,9 @@ mortgage.columns = ['date', 'rate_30yr_fixed']
 mortgage['year_month'] = mortgage['date'].dt.to_period('M')
 mortgage_monthly = (mortgage.groupby('year_month')['rate_30yr_fixed'].mean().reset_index())
 
-sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldAll.csv", low_memory = False)
+sold = pd.read_csv("CSVs/CRMLSSoldAll.csv", low_memory = False)
 
-listings = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSListingAll.csv", low_memory = False)
+listings = pd.read_csv("CSVs/CRMLSListingAll.csv", low_memory = False)
 
 # Sold dataset — key off CloseDate
 sold['year_month'] = pd.to_datetime(sold['CloseDate'], format = 'mixed').dt.to_period('M')
@@ -26,8 +26,8 @@ print("Listings null mortgage rates: ", listings_with_rates['rate_30yr_fixed'].i
 # Preview
 print(sold_with_rates[['CloseDate', 'year_month', 'ClosePrice', 'rate_30yr_fixed']].head())
 
-sold_with_rates.to_csv("CRMLSSoldwRates.csv")
-listings_with_rates.to_csv("CRMLSListingwRates.csv")
+sold_with_rates.to_csv("CSVs/CRMLSSoldwRates.csv")
+listings_with_rates.to_csv("CSVs/CRMLSListingwRates.csv")
 
 # January 2024 to May 2026 Data Analysis
 ###

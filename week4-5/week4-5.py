@@ -2,8 +2,8 @@ import pandas as pd
 import geopandas as gpd
 
 # Import CRMLSListings and CRMLSSold CSVs
-listings = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSListingwRates.csv", low_memory = False)
-sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldwRates.csv", low_memory = False)
+listings = pd.read_csv("CSVs/CRMLSListingwRates.csv", low_memory = False)
+sold = pd.read_csv("CSVs/CRMLSListingwRates.csv", low_memory = False)
 
 # Before row & col counts: 
 print(f"Listings rows before cleaning: {len(listings)}")
@@ -133,7 +133,7 @@ sold[obj_sold] = sold[obj_sold].fillna("Missing")
 
 ### Add school district mapping
 # Read California school district boundary GeoJSON
-districts_gdf = gpd.read_file("C:/Users/izlal/IDXExchange_SU26/week4-5/DistrictAreas2526_-284845464123469011.geojson")
+districts_gdf = gpd.read_file("week4-5/DistrictAreas2526_-284845464123469011.geojson")
 
 # Filter the school district dataset to only include DistrictType == "Unified"
 districts_gdf = districts_gdf[districts_gdf["DistrictType"] == "Unified"]
@@ -168,8 +168,8 @@ print(f"Sold rows after cleaning: {len(sold_df)}")
 print(f"Sold columns after cleaning: {len(sold_df.columns)}")
 
 # Save the enriched dataset
-listings_df.to_csv("CRMLSListingswDistrict.csv")
-sold_df.to_csv("CRMLSSoldwDistrict.csv")
+listings_df.to_csv("CSVs/CRMLSListingswDistrict.csv")
+sold_df.to_csv("CSVs/CRMLSSoldwDistrict.csv")
 
 #----------------------------------------------#
 # January 2024 to June 2026 Data Cleaning Summary

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-sold = pd.read_csv("C:/Users/izlal/IDXExchange_SU26/week2-3/CRMLSSoldAll.csv")
+sold = pd.read_csv("CSVs/CRMLSSoldAll.csv")
 
 # Identify numbers of rows and columns
 sold_rows = len(sold)
@@ -40,7 +40,7 @@ for col in target_cols:
     print(sold_filtered[col].describe().apply(lambda x: f"{x:.2f}"))
 
 # Save the filtered dataset as a new CSV
-sold_filtered.to_csv("CRMLSSoldFiltered.csv")
+sold_filtered.to_csv("CSVs/CRMLSSoldFiltered.csv")
 
 # January 2024 to May 2026 Sold Data Analysis
 ###

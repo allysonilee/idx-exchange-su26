@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import glob
 
-listing = "C:/Users/izlal/IDXExchange_SU26/CRMLSListing"
+listing = "CSVs/CRMLSListing"
 listing_files = glob.glob(os.path.join(listing, "CRMLSListing*.csv"))
 listing_dfs = [pd.read_csv(listing_file, low_memory = False) for listing_file in listing_files]
 
@@ -22,9 +22,9 @@ listing_df = listing_df[listing_df["PropertyType"] == "Residential"]
 list_rows_after_filter = len(listing_df)
 print("Listings after Residential filter: ", list_rows_after_filter)
 
-listing_df.to_csv("ConcatenatedCRMLSListing.csv")
+listing_df.to_csv("CSVs/ConcatenatedCRMLSListing.csv")
 
-sold = "C:/Users/izlal/IDXExchange_SU26/CRMLSSold"
+sold = "CSVs/CRMLSSold"
 sold_files = glob.glob(os.path.join(sold, "CRMLSSold*.csv"))
 sold_dfs = [pd.read_csv(sold_file, low_memory = False) for sold_file in sold_files]
 
@@ -44,7 +44,7 @@ sold_df = sold_df[sold_df["PropertyType"] == "Residential"]
 sold_rows_after_filter = len(sold_df)
 print("Sold after Residential filter: ", sold_rows_after_filter)
 
-sold_df.to_csv("ConcatenatedCRMLSSold.csv")
+sold_df.to_csv("CSVs/ConcatenatedCRMLSSold.csv")
 
 # January 2024 to May 2026 row counts
 ###

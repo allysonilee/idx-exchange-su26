@@ -66,10 +66,8 @@ print(f"Flagged Negative Rooms: {sum(sold['neg_rooms_flag'])}")
 # Remove unnecessary or redundant columns
 # Flagged Missing Columns (Observed in Week 2): ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict']
 listings = listings.drop(columns = ['FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict'])
-listings = listings.loc[:, ~listings.columns.duplicated()]
 
 sold = sold.drop(columns = ['FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict'])
-sold = sold.loc[:, ~sold.columns.duplicated()]
 
 # Ensure numeric fields are properly typed
 num_fields = ['AssociationFee', 'BathroomsTotalInteger', 'BedroomsTotal', 'ClosePrice', 'DaysOnMarket', 'GarageSpaces', 'Latitude', 'ListingKeyNumeric', 'ListPrice', 'LivingArea', 'Longitude', 'LotSizeAcres', 'LotSizeArea', 'LotSizeSquareFeet', 'MainLevelBedrooms', 'OriginalListPrice', 'ParkingTotal', 'Stories', 'StreetNumberNumeric', 'YearBuilt'] # excludes flagged missing columns
@@ -137,16 +135,16 @@ print(f"Sold rows after cleaning: {len(sold)}")
 print(f"Sold columns after cleaning: {len(sold.columns)}")
 
 # Save the cleaned datasets
-listings.to_csv("CSVs/CRMLSListingClean.csv")
-sold.to_csv("CSVs/CRMLSSoldClean.csv")
+listings.to_csv("CSVs/CRMLSListingClean.csv", index = False)
+sold.to_csv("CSVs/CRMLSSoldClean.csv", index = False)
 
 #----------------------------------------------#
 # January 2024 to June 2026 Data Cleaning Summary
 #----------------------------------------------#
 # Listings rows before cleaning: 967260
-# Listings columns before cleaning: 88
+# Listings columns before cleaning: 75
 # Sold rows before cleaning: 665439
-# Sold columns before cleaning: 86
+# Sold columns before cleaning: 84
 #----------------------------------------------#
 ### Illogical date field order: 
 # Listings: 
@@ -233,6 +231,6 @@ sold.to_csv("CSVs/CRMLSSoldClean.csv")
 # Implausible Coordinates: 4
 #----------------------------------------------#
 # Listings rows after cleaning: 852686
-# Listings columns after cleaning: 136
+# Listings columns after cleaning: 74
 # Sold rows after cleaning: 645045
-# Sold columns after cleaning: 132
+# Sold columns after cleaning: 83

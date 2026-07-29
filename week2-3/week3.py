@@ -26,8 +26,8 @@ print("Listings null mortgage rates: ", listings_with_rates['rate_30yr_fixed'].i
 # Preview
 print(sold_with_rates[['CloseDate', 'year_month', 'ClosePrice', 'rate_30yr_fixed']].head())
 
-sold_with_rates.to_csv("CSVs/CRMLSSoldwRates.csv")
-listings_with_rates.to_csv("CSVs/CRMLSListingwRates.csv")
+sold_with_rates.to_csv("CSVs/CRMLSSoldwRates.csv", index = False)
+listings_with_rates.to_csv("CSVs/CRMLSListingwRates.csv", index = False)
 
 # January 2024 to May 2026 Data Analysis
 ###

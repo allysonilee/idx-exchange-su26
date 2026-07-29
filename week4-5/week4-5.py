@@ -2,7 +2,7 @@ import pandas as pd
 
 # Import CRMLSListings and CRMLSSold CSVs
 listings = pd.read_csv("CSVs/CRMLSListingwRates.csv", low_memory = False)
-sold = pd.read_csv("CSVs/CRMLSListingwRates.csv", low_memory = False)
+sold = pd.read_csv("CSVs/CRMLSSoldwRates.csv", low_memory = False)
 
 # Before row & col counts: 
 print(f"Listings rows before cleaning: {len(listings)}")
@@ -122,12 +122,12 @@ sold = sold[~(sold['missing_coords']) & ~(sold['null_coords']) & ~(sold['oob_coo
 # Handle missing values appropriately
 num_listings = listings.select_dtypes(include=['number']).columns
 listings[num_listings] = listings[num_listings].fillna(listings[num_listings].median())
-obj_listings = listings.select_dtypes(include=['str']).columns
+obj_listings = listings.select_dtypes(include=['object', 'string']).columns
 listings[obj_listings] = listings[obj_listings].fillna("Missing")
 
 num_sold = sold.select_dtypes(include=['number']).columns
 sold[num_sold] = sold[num_sold].fillna(sold[num_sold].median())
-obj_sold = sold.select_dtypes(include=['str']).columns
+obj_sold = sold.select_dtypes(include=['object', 'string']).columns
 sold[obj_sold] = sold[obj_sold].fillna("Missing")
 
 # After row & col counts: 

@@ -40,12 +40,12 @@ for col in target_cols:
     print(sold_filtered[col].describe().apply(lambda x: f"{x:.2f}"))
 
 # Save the filtered dataset as a new CSV
-sold_filtered.to_csv("CSVs/CRMLSSoldFiltered.csv")
+sold_filtered.to_csv("CSVs/CRMLSSoldFiltered.csv", index = False)
 
 # January 2024 to May 2026 Sold Data Analysis
 ###
 # Sold Number of Rows:  639916
-# Sold Number of Columns:  83
+# Sold Number of Columns:  82
 # Sold Column Datatypes:  ['int64', 'str', 'object', 'float64']
 # Sold Property Types: ['Residential', 'CommercialLease', 'Land', 'ResidentialLease', 'ManufacturedInPark', 'ResidentialIncome', 'CommercialSale', 'BusinessOpportunity']
 # Flagged Missing Columns: ['WaterfrontYN', 'BasementYN', 'FireplacesTotal', 'AboveGradeFinishedArea', 'TaxAnnualAmount', 'BuilderName', 'TaxYear', 'BuildingAreaTotal', 'ElementarySchoolDistrict', 'CoBuyerAgentFirstName', 'BelowGradeFinishedArea', 'BusinessType', 'CoveredSpaces', 'LotSizeDimensions', 'MiddleOrJuniorSchoolDistrict']

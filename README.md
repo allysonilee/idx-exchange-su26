@@ -5,27 +5,46 @@ Each heading corresponds to a unique module's folder including .py file(s) with 
 Datasets are stored in a particular CSV folder (untracked on GitHub). 
 ## Week 1
 Retrieve and respectively concatenate CRMLS sold and listing data from January 2024 to the most recently complete calendar month from the CSV folder. 
-Save the concatenated dataset consisting of exclusively residential property types in the CSV folder. 
+Save the concatenated datasets consisting of exclusively residential property types as new CSVs `ConcatenatedCRMLS[Listing/Sold].csv` in the CSV folder. 
 ## Week 2-3
 ### Week 2
 Inspect the sold data and filter to only include relevant property records by removing columns with high amounts of missing data. 
-Save the filtered data as a new CSV in the CSV folder.
+Save the filtered data as a new CSV `CRMLSSoldFiltered.csv` in the CSV folder.
 ### Week 3
 Merge the concatenated sold and listing datasets with the FRED MORTGAGE30US series on a monthly key to gauge mortgage rates for each sold and listed property based on month. 
-Save the enriched datasets as new CSVs in the CSV folder. 
+Save the enriched datasets as new CSVs `CRMLS[Listing/Sold]wRates.csv` in the CSV folder. 
 ## Week 4-5
 Transform data in the sold and listed dataframe columns to their correct datatypes. 
 Remove unnecessary and redundant columns. 
 Appropriately impute missing values. 
 Flag and remove invalid numeric values and illogical date order fields. 
 Flag and remove missing, out-of-state, and implausible coordinates. 
-Save the cleaned datasets as new CSVs in the CSV folder. 
+Save the cleaned datasets as new CSVs `CRMLS[Listing/Sold]Clean.csv` in the CSV folder. 
 ## Week 6
+Engineer key market metrics: 
+| Metric | Formula | Purpose |
+|---|---|---|
+| Price Ratio | `ClosePrice / OriginalListPrice` | Measures negotiation strength |
+| Price Per Sq Ft | `ClosePrice / LivingArea` | Normalizes price across sizes |
+| Days on Market | `DaysOnMarket` (raw field) | Time-to-sell indicator |
+| Year / Month / YrMo | Derived from `CloseDate` | Enables time-series analysis |
+| Close to Original List Ratio | `ClosePrice / OriginalListPrice` | Captures full price reduction history |
+| Listing to Contract Days | `PurchaseContractDate - ListingContractDate` | Measures time from listing to accepted offer |
+| Contract to Close Days | `CloseDate - PurchaseContractDate` | Escrow and closing period duration |
 
+Identify market patterns based on analysis of engineered metrics, grouped by: 
+- PropertyType and PropertySubType
+- CountyOrParish and MLSAreaMajor
+- ListOfficeName and BuyerOfficeName (for competitive intelligence)
+
+Map school districts to each property in the dataset based on latitude and longitude values. 
+Save the cleaned and enriched datasets as new CSVs `CRMLS[Listing/Sold]wDistrict.csv` in the CSV folder. 
 ## Week 7
-
+Detect outliers in key numeric columns: `ClosePrice`, `LivingArea`, `DaysOnMarket` by flagging values 1.5x outside of the respective column's interquartile range. 
+Save the flagged datasets as new CSVs in the CSV folder. 
+Filter outliers by removing the flagged outlier values. 
+Save the cleaned and filtered datasets as new CSVs `CRMLS[Listing/Sold]CleanFiltered.csv` in the CSV folder. 
 ## Directory (updated to Week 7)
-
 ```
 ├── README.md
 │

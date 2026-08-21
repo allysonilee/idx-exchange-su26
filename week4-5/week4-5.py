@@ -118,12 +118,14 @@ listings = listings[~(listings['missing_coords']) & ~(listings['null_coords']) &
 sold = sold[~(sold['missing_coords']) & ~(sold['null_coords']) & ~(sold['oob_coords']) & ~(sold['oos_coords']) & ~(sold['imp_coords'])]
 
 # Handle missing values appropriately
-num_listings = listings.select_dtypes(include=['number']).columns
+no_impute_cols = ['ClosePrice', 'CloseDate']
+
+num_listings = listings.select_dtypes(include=['number']).columns.difference(no_impute_cols)
 listings[num_listings] = listings[num_listings].fillna(listings[num_listings].median())
 obj_listings = listings.select_dtypes(include=['object', 'string']).columns
 listings[obj_listings] = listings[obj_listings].fillna("Missing")
 
-num_sold = sold.select_dtypes(include=['number']).columns
+num_sold = sold.select_dtypes(include=['number']).columns.difference(no_impute_cols)
 sold[num_sold] = sold[num_sold].fillna(sold[num_sold].median())
 obj_sold = sold.select_dtypes(include=['object', 'string']).columns
 sold[obj_sold] = sold[obj_sold].fillna("Missing")

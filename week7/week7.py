@@ -72,10 +72,10 @@ sold.to_csv("CSVs/CRMLSSoldFlagged.csv", index = False)
 # Sold DaysOnMarket median: 22.0
 #--------------------------------------------#
 ### After filtering:
-# Listings size: 548683
-# Listing ClosePrice median: 530000.0
-# Listing LivingArea median: 1604.0
-# Listing DaysOnMarket median: 8.0
+# Listings size: 174981
+# Listing ClosePrice median: 495000.0
+# Listing LivingArea median: 1518.0
+# Listing DaysOnMarket median: 11.0
 ##
 # Sold size: 551658
 # Sold ClosePrice median: 600000.0
